@@ -34,7 +34,6 @@ $(document).ready(function () {
             AllBooks(rootDiv);
         })
     })
-
 });
 
 //Dodaje nowe książki
@@ -44,13 +43,20 @@ function form() {
     submit.on('click', function (e) {
         e.preventDefault();
 
-        var newBook = {};
 
-        newBook.author = $('#author').val();
-        newBook.isbn = $('#isbn').val();
-        newBook.publisher = $('#publisher').val();
-        newBook.title = $('#title').val();
-        newBook.type = $('#type').val();
+        var author = $('#author').val();
+        var isbn = $('#isbn').val();
+        var publisher = $('#publisher').val();
+        var title = $('#title').val();
+        var type = $('#type').val();
+
+        var newBook = {
+            isbn: isbn,
+            title: title,
+            author: author,
+            publisher: publisher,
+            genre: type,
+        };
 
         $.ajax({
             url: 'http://localhost:8000/book/',
@@ -59,7 +65,8 @@ function form() {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json'
             },
-            data: JSON.stringify(newBook)
+            dataType : "json",
+            data: JSON.stringify(newBook),
         }).done(function () {
             AllBooks($('#root'));
         }).fail(function (xhr, status, err) {

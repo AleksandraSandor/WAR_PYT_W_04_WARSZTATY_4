@@ -1,4 +1,4 @@
-// zadanie 7 - wykorzystanie 1 ajaxa
+// zadania 1-6
 
 $(document).ready(function () {
     var rootDiv = $('#root');
@@ -10,18 +10,29 @@ $(document).ready(function () {
         var detailDiv = bookDiv.find('div');
         var bookId = $(this).data('id');
 
-        ajaxFunction('http://localhost:8000/book/' + bookId, 'GET', undefined, function (bookDetails) {
+        $.ajax({
+            url: 'http://localhost:8000/book/' + bookId,
+            type: 'GET'
+        }).done(function (bookDetails) {
             detailDiv.toggle();
             detailDiv.text('Author: ' + bookDetails.author + ', id: ' + bookDetails.id + ', isbn: ' + bookDetails.isbn + ', publisher ' + bookDetails.publisher + ', type' + bookDetails.type);
-
+        }).fail(function (xhr, status, err) {
+            console.log(err);
+            console.log(xhr);
+            console.log(status);
+        }).always(function (xhr, status) {
         })
+
 
     });
     // usuwa wybraną książkę
     rootDiv.on('click', '.delete-button', function (e) {
         e.stopPropagation();
         var bookId = $(this).parent().data('id');
-        ajaxFunction('http://localhost:8000/book/' + bookId, 'DELETE',undefined, function () {
+        $.ajax({
+            url: 'http://localhost:8000/book/' + bookId,
+            type: 'DELETE'
+        }).done(function () {
             AllBooks(rootDiv);
         })
     })
@@ -49,35 +60,39 @@ function form() {
             genre: type,
         };
 
-        ajaxFunction('http://localhost:8000/book/','POST', JSON.stringify(newBook), function () {
+        $.ajax({
+            url: 'http://localhost:8000/book/',
+            type: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            dataType : "json",
+            data: JSON.stringify(newBook),
+        }).done(function () {
             AllBooks($('#root'));
-    })})}
-
+        }).fail(function (xhr, status, err) {
+            console.log(err);
+            console.log(xhr);
+            console.log(status);
+        }).always(function (xhr, status) {
+        })
+    })
+}
 
 
 //Wywołuje wszystkie dostępne książki
 function AllBooks(rootElement) {
     rootElement.html('');
-    ajaxFunction('http://localhost:8000/book/','GET',undefined, function(data){
-    for (var i = 0; i < data.length; i++) {
-        var newTag = $('<div class="book" data-id="' + data[i].id + '">' + data[i].title + '<button class="delete-button">Usun</button>' + '<div style=display:none;></div></div>');
-        rootElement.append(newTag);
-
-}})}
-
-
-
-function ajaxFunction(url, method, data, handleSuccessFn){
     $.ajax({
-      url: url,
-      type: method,
-      data: data,
-      contentType: "application/json; charset=utf-8",
-      dataType: "json",
-    }).done(handleSuccessFn)
-      .fail(function(xhr, status, err){
-      console.log("ERR", xhr, status, err);
+        url: 'http://localhost:8000/book/',
+        type: 'GET'
+    }).done(function (data) {
+        for (var i = 0; i < data.length; i++) {
+            var newTag = $('<div class="book" data-id="' + data[i].id + '">' + data[i].title + '<button class="delete-button">Usun</button>' + '<div style=display:none;></div></div>');
+            rootElement.append(newTag);
+        }
+    }).fail(function (xhr, status, err) {
+    }).always(function (xhr, status) {
     })
-
 }
-
